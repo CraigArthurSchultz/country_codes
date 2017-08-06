@@ -3,6 +3,13 @@
 <head>
 
 <style type="text/css">
+#searchInput {
+    width: 200px;
+}
+#searchString {
+	font-style: italic;
+	font-weight:500;
+}
 #resultSet {
 	display:table;
 	border:1px solid;
@@ -104,66 +111,36 @@
 }
 
 .spinner {
-  height: 60px;
-  width: 60px;
-  margin: 94px auto 0 auto;
-  position: absolute;
-  top:-24px;
-  left:40%;
-  -webkit-animation: rotation .6s infinite linear;
-  -moz-animation: rotation .6s infinite linear;
-  -o-animation: rotation .6s infinite linear;
-  animation: rotation .6s infinite linear;
-  border-left: 6px solid rgba(0, 174, 239, .15);
-  border-right: 6px solid rgba(0, 174, 239, .15);
-  border-bottom: 6px solid rgba(0, 174, 239, .15);
-  border-top: 6px solid rgba(0, 174, 239, .8);
-  border-radius: 100%;
-}
-
-@-webkit-keyframes rotation {
-  from {
-    -webkit-transform: rotate(0deg);
-  }
-  to {
-    -webkit-transform: rotate(359deg);
-  }
-}
-
-@-moz-keyframes rotation {
-  from {
-    -moz-transform: rotate(0deg);
-  }
-  to {
-    -moz-transform: rotate(359deg);
-  }
-}
-
-@-o-keyframes rotation {
-  from {
-    -o-transform: rotate(0deg);
-  }
-  to {
-    -o-transform: rotate(359deg);
-  }
+	height: 60px;
+	width: 60px;
+	margin: 94px auto 0 auto;
+	position: absolute;
+	top:-24px;
+	left:40%;
+	animation: rotation .6s infinite linear;
+	border-left: 6px solid rgba(0, 174, 239, .15);
+	border-right: 6px solid rgba(0, 174, 239, .15);
+	border-bottom: 6px solid rgba(0, 174, 239, .15);
+	border-top: 6px solid rgba(0, 174, 239, .8);
+	border-radius: 100%;
 }
 
 @keyframes rotation {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(359deg);
-  }
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(359deg);
+	}
 }
 </style>
 </head>
 <body>
 <form id="search" action="/">
-	<input type="text" name="searchInput" id="searchInput" value="<?php echo (isset($_REQUEST['searchInput']) ? htmlentities($_REQUEST['searchInput']) : ""); ?>" />
+	<input type="text" name="searchInput" id="searchInput" placeholder="Name or 2 or 3 letter code" value="<?php echo (isset($_REQUEST['searchInput']) ? htmlentities($_REQUEST['searchInput']) : ""); ?>" />
 	<input type="submit" />
 </form>
-<h1>Result set for : <?php echo htmlentities((isset($_REQUEST['searchInput']) ? $_REQUEST['searchInput'] : ""));?></h1>
+<h1>Result set for : <span id="searchString"><?php echo htmlentities((isset($_REQUEST['searchInput']) ? $_REQUEST['searchInput'] : ""));?></span></h1>
 <div id="resultSet">
 	<div id="headerRow">
 		<div id="nameSort" class="headerField">Name<span id="nameSortUp" class="upArrow" title="Click to sort in ascending order."></span><span id="nameSortDown" class="downArrow" title="Click to sort in descending order."></span></div>
@@ -360,6 +337,7 @@ function removeSiblings (node)
 	}
 }
 
+var objSearchString = null;
 function dataReply (reply)
 {
 	if (oSpinner != null) oBody.removeChild(oSpinner);
@@ -374,6 +352,18 @@ console.log(newReply);
 		return;
 	}
 	
+	//	Update displayed search string
+	if (objSearchString == null) objSearchString = document.getElementById('searchString');
+	if (objSearchString == null)
+	{	//	Only possible if the element had actually been removed.
+		alert('Processing cannot continue. A missing page element is missing : "searchString".');
+		return;
+	}
+	if (typeof searchString !== 'undefined')
+	{
+		objSearchString.innerHTML = searchString;
+	}
+
 	//	Now comes the fun part, emptying and then refilling the result set.
 	//	First the emptying ...
 	if ((headerRow = document.getElementById('headerRow')) == null) return;
@@ -479,6 +469,10 @@ console.log(newReply);
 		summSubregions.appendChild(subregion);
 	}
 }
+
+var encodedStr = rawStr.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
+   return '&#'+i.charCodeAt(0)+';';
+});
 
 function AJAX ( requestPage, parameters, type, port, reply ) 
 {
