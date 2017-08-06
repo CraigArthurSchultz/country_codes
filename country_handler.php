@@ -149,7 +149,7 @@ arsort($aSubregions);
 
 if (isset($_REQUEST['ajax']))
 {
-	echo "var error='';$options;var countryCount=$countryCount;var regions=". json_encode($aRegions) .";var subregions=". json_encode($aSubregions) .";var result=". print_r(json_encode($aResponse), true) .";";
+	echo "var error='';var searchString='". htmlentities($searchInput) ."';$options;var countryCount=$countryCount;var regions=". json_encode($aRegions) .";var subregions=". json_encode($aSubregions) .";var result=". print_r(json_encode($aResponse), true) .";";
 }
 
 function __sortNameUp ($a, $b)
